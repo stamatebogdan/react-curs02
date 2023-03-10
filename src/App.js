@@ -1,7 +1,7 @@
 import React from 'react';
 // nu uitati sa importati componentele folosite!
-import UserItem from './components/UserItem';
 import './App.css';
+import UserList from './components/UserList';
 
 // ATENTIE! Initial, in create-react-app, App era o functie.
 // Sintaxa in care App e o functie e pentru Hooks, iar noi nu o vom folosi.
@@ -10,10 +10,51 @@ import './App.css';
 class App extends React.Component {
   // In constructor este apelat mai intai super, iar apoi este initializat state-ul
   constructor() {
+    console.log("App.js constructor has been called");
+
     super();
     this.state = {
-      background: 'white'
+      background: 'white',
+      users: [
+        // {
+        //   name: 'Arsene Florin',
+        //   email: 'arsene.florin@gmail.com',
+        //   isGoldClient: true
+        // },
+        // {
+        //   name: 'Criste Mihai',
+        //   email: 'criste.mihai@gmail.com',
+        //   isGoldClient: false
+        // }
+      ]
     };
+  }
+
+  componentDidMount() {
+    console.log("App.js was mounted")
+    fetch('https://jsonplaceholder.typicode.com/users')
+    .then((response) => {
+      return response.json();
+    })
+    .then((response2) => {
+      // console.log(response2);
+      //filtram datele venite de la API astfel incat pe ecran sa fie afisati doar 3 useri
+      const filteredJSON = response2.filter(user => user.id < 4);
+
+      //BONUS: adaugati fiecarui user o proprietate isGoldClient cu valoarea false
+      filteredJSON.forEach((user) => {
+        user.isGoldClient = true;
+      })
+      this.setState({users: filteredJSON}) 
+    })
+  }
+
+  componentDidUpdate(){
+    console.log("App.js was updated")
+  }
+
+  componentWillUnmount(){
+    console.log("UserList was unmounted")
   }
 
   // changeColor e o metoda a clasei, care primeste ca parametru un event.
@@ -32,6 +73,8 @@ class App extends React.Component {
 
   // render se apeleaza de fiecare data cand se modifica state-ul!
   render() {
+    console.log("App.js render has been called")
+
     return(
       // Prin style putem trimite CSS catre componenta.
       // ATENTIE! style este un obiect JS (primele acolade sunt de la sintaxa JSX).
@@ -42,8 +85,23 @@ class App extends React.Component {
         In fisierul UserItem.jsx ea este doar declarata!! */}
         {/* Atributele name si email sunt puse intr-un obiect (DE CATRE REACT!!)
         si trimise catre componenta UserItem.jsx */}
-        <UserItem name="Arsene Florin" email="arsene.florin@gmail.com"/>
-        <UserItem name="Criste Mihai" email="criste.mihai@gmail.com"/>
+        {
+          this.state.background !== '#000000'  
+            ? <UserList users={this.state.users} />
+            : null
+        } 
+        {/* <UserItem 
+          name={this.state.users[0].name} 
+          email={this.state.users[0].email} 
+          isGoldClient={this.state.users[0].isGoldClient}
+        />
+        <UserItem 
+          name={this.state.users[1].name}
+          email={this.state.users[1].email} 
+          isGoldClient={this.state.users[1].isGoldClient}
+        /> */}
+
+
         {/* input type color ne permite sa selectam o culoare. Cand selectam noua culoare
         se declanseaza evenimentul onChange, echivalent evenimentului onchange din HTML, sau
         a lui change, folosit de addEventListener. Functia executata atunci este changeColor,
